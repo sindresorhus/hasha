@@ -1,0 +1,48 @@
+{
+  "name": "hasha",
+  "version": "0.0.0",
+  "description": "Get the hash of a buffer/string/stream/file",
+  "license": "MIT",
+  "repository": "sindresorhus/hasha",
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "bin": "cli.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "files": [
+    "index.js",
+    "cli.js"
+  ],
+  "keywords": [
+    "cli-app",
+    "cli",
+    "hash",
+    "crypto",
+    "hex",
+    "base64",
+    "md5",
+    "sha1",
+    "sha256",
+    "sha512",
+    "stream",
+    "file",
+    "fs",
+    "buffer",
+    "string"
+  ],
+  "dependencies": {
+    "is-stream": "^1.0.1",
+    "meow": "^3.1.0"
+  },
+  "devDependencies": {
+    "ava": "0.0.4",
+    "is-stream": "^1.0.1"
+  }
+}
