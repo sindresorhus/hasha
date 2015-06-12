@@ -27,7 +27,7 @@ if (!input && process.stdin.isTTY) {
 }
 
 if (input) {
-	process.stdout.write(hasha(input, cli.flags));
+	console.log(hasha(input, cli.flags));
 } else {
 	process.stdin.pipe(hasha.stream(cli.flags)).pipe(process.stdout);
 }
