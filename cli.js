@@ -16,7 +16,7 @@ var cli = meow({
 		'Options',
 		'  --algorithm  Cipher algorithm: md5,sha1,sha256,sha512   Default: sha512s',
 		'  --encoding   Output encoding: hex,base64,buffer,binary  Default: hex'
-	].join('\n')
+	]
 });
 
 var input = cli.input[0];
