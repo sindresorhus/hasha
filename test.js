@@ -8,6 +8,7 @@ test('hasha()', function (t) {
 	var fixture = new Buffer('unicorn');
 	t.assert(hasha(fixture).length === 128);
 	t.assert(hasha('unicorn').length === 128);
+	t.assert(hasha({foo: 'bar'}).length === 128);
 	t.assert(Buffer.isBuffer(hasha(fixture, {encoding: 'buffer'})));
 	t.assert(hasha(fixture, {algorithm: 'md5'}).length === 32);
 	t.end();

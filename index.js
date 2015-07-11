@@ -5,6 +5,8 @@ var isStream = require('is-stream');
 
 var hasha = module.exports = function (buf, opts) {
 	opts = opts || {};
+	
+	buf = JSON.stringify(buf) || buf;
 
 	var inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
 	var outputEncoding = opts.encoding || 'hex';
