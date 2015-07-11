@@ -149,6 +149,11 @@ $ hasha --help
 - [Hasha: A Friendly Crypto API • DailyJS](http://dailyjs.com/2015/06/12/hasha-a-friendly-crypto-api/)
 
 
+## Related
+
+- [hash-obj](https://github.com/sindresorhus/hash-obj) - Get the hash of an object
+
+
 ## License
 
 MIT © [Sindre Sorhus](http://sindresorhus.com)
