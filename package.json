@@ -13,7 +13,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "ava"
   },
   "files": [
     "index.js"
@@ -45,7 +45,6 @@
     "meow": "^3.3.0"
   },
   "devDependencies": {
-    "ava": "*",
-    "is-stream": "^1.0.1"
+    "ava": "*"
   }
 }
