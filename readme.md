@@ -59,7 +59,6 @@ See the Node.js [`crypto` docs](https://nodejs.org/api/crypto.html#crypto_crypto
 
 #### input
 
-*Required*  
 Type: `buffer`, `string`
 
 Buffer you want to hash.
@@ -74,7 +73,6 @@ Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_clas
 
 #### input
 
-*Required*  
 Type: `stream`
 
 #### callback(error, hash)
@@ -83,7 +81,6 @@ Type: `stream`
 
 #### input
 
-*Required*  
 Type: `string`
 
 Path to the file to hash.
@@ -96,7 +93,6 @@ Returns the hash.
 
 #### input
 
-*Required*  
 Type: `string`
 
 Path to the file to hash.
@@ -121,29 +117,6 @@ Values: `md5`, `sha1`, `sha256`, `sha512`, etc *([platform dependent](https://no
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
 
 
-## CLI
-
-```
-$ npm install --global hasha
-```
-
-```
-$ hasha --help
-
-  Usage
-    $ hasha <text>
-    $ cat <file> | hasha
-
-  Example
-    $ hasha unicorn --algorithm=md5
-    1abcb33beeb811dca15f0ac3e47b88d9
-
-  Options
-    --algorithm  Cipher algorithm: md5,sha1,sha256,sha512   Default: sha512s
-    --encoding   Output encoding: hex,base64,buffer,binary  Default: hex
-```
-
-
 ## Resources
 
 - [Hasha: A Friendly Crypto API • DailyJS](http://dailyjs.com/2015/06/12/hasha-a-friendly-crypto-api/)
@@ -151,6 +124,7 @@ $ hasha --help
 
 ## Related
 
+- [hasha-cli](https://github.com/sindresorhus/hasha-cli) - CLI for this module
 - [hash-obj](https://github.com/sindresorhus/hash-obj) - Get the hash of an object
 
 

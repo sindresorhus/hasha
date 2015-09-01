@@ -9,7 +9,6 @@
     "email": "sindresorhus@gmail.com",
     "url": "sindresorhus.com"
   },
-  "bin": "cli.js",
   "engines": {
     "node": ">=0.10.0"
   },
@@ -17,12 +16,9 @@
     "test": "node test.js"
   },
   "files": [
-    "index.js",
-    "cli.js"
+    "index.js"
   ],
   "keywords": [
-    "cli-app",
-    "cli",
     "hash",
     "hashing",
     "crypto",
@@ -49,7 +45,7 @@
     "meow": "^3.3.0"
   },
   "devDependencies": {
-    "ava": "0.0.4",
+    "ava": "*",
     "is-stream": "^1.0.1"
   }
 }
