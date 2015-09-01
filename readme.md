@@ -99,7 +99,7 @@ Returns a promise that resolves to a hash.
 
 ### hasha.fromFileSync(filepath, [options])
 
-Returns the hash.
+Returns a hash.
 
 
 ## Resources
