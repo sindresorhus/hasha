@@ -2,6 +2,7 @@
 var fs = require('fs');
 var crypto = require('crypto');
 var isStream = require('is-stream');
+var Promise = require('pinkie-promise');
 
 var hasha = module.exports = function (buf, opts) {
 	opts = opts || {};
@@ -28,38 +29,32 @@ hasha.stream = function (opts) {
 		outputEncoding = undefined;
 	}
 
-	var stream = crypto.createHash(opts.algorithm || 'sha512')
+	var stream = crypto.createHash(opts.algorithm || 'sha512');
 	stream.setEncoding(outputEncoding);
 	return stream;
 };
 
-hasha.fromStream = function (stream, opts, cb) {
+hasha.fromStream = function (stream, opts) {
 	if (!isStream(stream)) {
 		throw new TypeError('Expected a stream');
 	}
 
-	if (typeof opts !== 'object') {
-		cb = opts;
-		opts = {};
-	}
+	opts = opts || {};
 
-	stream
-		.pipe(hasha.stream(opts).on('error', cb))
-		.on('error', cb)
-		.on('finish', function () {
-			cb(null, this.read());
-		});
+	return new Promise(function (resolve, reject) {
+		stream
+			.pipe(hasha.stream(opts).on('error', reject))
+			.on('error', reject)
+			.on('finish', function () {
+				resolve(this.read());
+			});
+	});
 };
 
-hasha.fromFile = function (pth, opts, cb) {
-	if (typeof opts !== 'object') {
-		cb = opts;
-		opts = {};
-	}
-
-	hasha.fromStream(fs.createReadStream(pth), opts, cb);
+hasha.fromFile = function (fp, opts) {
+	return hasha.fromStream(fs.createReadStream(fp), opts);
 };
 
-hasha.fromFileSync = function (pth, opts) {
-	return hasha(fs.readFileSync(pth), opts);
+hasha.fromFileSync = function (fp, opts) {
+	return hasha(fs.readFileSync(fp), opts);
 };

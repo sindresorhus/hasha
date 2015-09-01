@@ -36,7 +36,7 @@ hasha('unicorn');
 ```js
 var hasha = require('hasha');
 
-// hash the proccess input and output the hash sum
+// hash the process input and output the hash sum
 process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 ```
 
@@ -44,7 +44,7 @@ process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 var hasha = require('hasha');
 
 // get the MD5 hash of an image
-hasha.fromFile('unicorn.png', {algorithm: 'md5'}, function (err, hash) {
+hasha.fromFile('unicorn.png', {algorithm: 'md5'}).then(function (hash) {
 	console.log(hash);
 	//=> '1abcb33beeb811dca15f0ac3e47b88d9'
 });
@@ -57,6 +57,8 @@ See the Node.js [`crypto` docs](https://nodejs.org/api/crypto.html#crypto_crypto
 
 ### hasha(input, [options])
 
+Returns a hash.
+
 #### input
 
 Type: `buffer`, `string`
@@ -65,40 +67,7 @@ Buffer you want to hash.
 
 While strings are supported you should prefer buffers as they're faster to hash. Though if you already have a string you should not convert it to a buffer.
 
-### hasha.stream([options])
-
-Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
-
-### hasha.fromStream(input, [options], callback)
-
-#### input
-
-Type: `stream`
-
-#### callback(error, hash)
-
-### hasha.fromFile(input, [options], callback)
-
-#### input
-
-Type: `string`
-
-Path to the file to hash.
-
-#### callback(error, hash)
-
-### hasha.fromFileSync(input, [options])
-
-Returns the hash.
-
-#### input
-
-Type: `string`
-
-Path to the file to hash.
-
-
-## Options
+#### options
 
 ##### encoding
 
@@ -115,6 +84,22 @@ Default: `sha512`
 Values: `md5`, `sha1`, `sha256`, `sha512`, etc *([platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm))*
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
+
+### hasha.stream([options])
+
+Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
+
+### hasha.fromStream(stream, [options])
+
+Returns a promise that resolves to a hash.
+
+### hasha.fromFile(filepath, [options])
+
+Returns a promise that resolves to a hash.
+
+### hasha.fromFileSync(filepath, [options])
+
+Returns the hash.
 
 
 ## Resources

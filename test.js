@@ -19,17 +19,13 @@ test('hasha.stream()', function (t) {
 });
 
 test('hasha.fromStream()', function (t) {
-	t.plan(1);
-
-	hasha.fromStream(fs.createReadStream('test.js'), function (err, hash) {
+	return hasha.fromStream(fs.createReadStream('test.js')).then(function (hash) {
 		t.is(hash.length, 128);
 	});
 });
 
 test('hasha.fromFile()', function (t) {
-	t.plan(1);
-
-	hasha.fromFile('test.js', function (err, hash) {
+	return hasha.fromFile('test.js').then(function (hash) {
 		t.is(hash.length, 128);
 	});
 });
