@@ -36,7 +36,7 @@ hasha.stream = function (opts) {
 
 hasha.fromStream = function (stream, opts) {
 	if (!isStream(stream)) {
-		throw new TypeError('Expected a stream');
+		return Promise.reject(new TypeError('Expected a stream'));
 	}
 
 	opts = opts || {};
