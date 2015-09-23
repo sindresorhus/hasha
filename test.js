@@ -3,6 +3,8 @@ var fs = require('fs');
 var test = require('ava');
 var isStream = require('is-stream');
 var hasha = require('./');
+var proxyquire = require('proxyquire');
+var Writeable = require('stream').Writable;
 
 test('hasha()', function (t) {
 	var fixture = new Buffer('unicorn');
@@ -24,9 +26,37 @@ test('hasha.fromStream()', function (t) {
 	});
 });
 
+test('crypto error', function (t) {
+	t.plan(1);
+
+	var proxied = proxyquire('./', {
+		crypto: {
+			createHash: function () {
+				var stream = new Writeable();
+				stream._write = function () {
+					this.emit('error', new Error('some crypto error'));
+				};
+				stream.setEncoding = function () {};
+				return stream;
+			}
+		}
+	});
+
+	return proxied.fromStream(fs.createReadStream('test.js')).catch(function (err) {
+		t.is(err.message, 'some crypto error');
+	});
+});
+
 test('hasha.fromFile()', function (t) {
 	return hasha.fromFile('test.js').then(function (hash) {
 		t.is(hash.length, 128);
+	});
+});
+
+test('hasha.fromFile(non-existent)', function (t) {
+	t.plan(1);
+	return hasha.fromFile('non-existent-file.txt').catch(function (err) {
+		t.is(err.code, 'ENOENT');
 	});
 });
 
