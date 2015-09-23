@@ -43,7 +43,8 @@ hasha.fromStream = function (stream, opts) {
 
 	return new Promise(function (resolve, reject) {
 		stream
-			.pipe(hasha.stream(opts).on('error', reject))
+			.on('error', reject)
+			.pipe(hasha.stream(opts))
 			.on('error', reject)
 			.on('finish', function () {
 				resolve(this.read());

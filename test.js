@@ -30,6 +30,13 @@ test('hasha.fromFile()', function (t) {
 	});
 });
 
+test('hasha.fromFile(non-existent)', function (t) {
+	t.plan(1);
+	return hasha.fromFile('non-existent-file.txt').catch(function (err) {
+		t.is(err.code, 'ENOENT');
+	});
+});
+
 test('hasha.fromFileSync()', function (t) {
 	t.is(hasha.fromFileSync('test.js').length, 128);
 	t.end();
