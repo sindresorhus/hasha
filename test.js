@@ -1,66 +1,56 @@
-'use strict';
-var fs = require('fs');
-var test = require('ava');
-var isStream = require('is-stream');
-var hasha = require('./');
-var proxyquire = require('proxyquire');
-var Writeable = require('stream').Writable;
+import fs from 'fs';
+import test from 'ava';
+import isStream from 'is-stream';
+import proxyquire from 'proxyquire';
+import fn from './';
 
-test('hasha()', function (t) {
-	var fixture = new Buffer('unicorn');
-	t.is(hasha(fixture).length, 128);
-	t.is(hasha('unicorn').length, 128);
-	t.true(Buffer.isBuffer(hasha(fixture, {encoding: 'buffer'})));
-	t.is(hasha(fixture, {algorithm: 'md5'}).length, 32);
-	t.end();
+const Writeable = require('stream').Writable;
+
+test('hasha()', t => {
+	const fixture = new Buffer('unicorn');
+	t.is(fn(fixture).length, 128);
+	t.is(fn('unicorn').length, 128);
+	t.true(Buffer.isBuffer(fn(fixture, {encoding: 'buffer'})));
+	t.is(fn(fixture, {algorithm: 'md5'}).length, 32);
 });
 
-test('hasha.stream()', function (t) {
-	t.true(isStream(hasha.stream()));
-	t.end();
+test('hasha.stream()', t => {
+	t.true(isStream(fn.stream()));
 });
 
-test('hasha.fromStream()', function (t) {
-	return hasha.fromStream(fs.createReadStream('test.js')).then(function (hash) {
-		t.is(hash.length, 128);
-	});
+test('hasha.fromStream()', async t => {
+	t.is((await fn.fromStream(fs.createReadStream('test.js'))).length, 128);
 });
 
-test('crypto error', function (t) {
-	t.plan(1);
-
-	var proxied = proxyquire('./', {
+test('crypto error', async t => {
+	const proxied = proxyquire('./', {
 		crypto: {
-			createHash: function () {
-				var stream = new Writeable();
+			createHash: () => {
+				const stream = new Writeable();
 				stream._write = function () {
 					this.emit('error', new Error('some crypto error'));
 				};
-				stream.setEncoding = function () {};
+				stream.setEncoding = () => {};
 				return stream;
 			}
 		}
 	});
 
-	return proxied.fromStream(fs.createReadStream('test.js')).catch(function (err) {
-		t.is(err.message, 'some crypto error');
-	});
+	await t.throws(proxied.fromStream(fs.createReadStream('test.js')), 'some crypto error');
 });
 
-test('hasha.fromFile()', function (t) {
-	return hasha.fromFile('test.js').then(function (hash) {
-		t.is(hash.length, 128);
-	});
+test('hasha.fromFile()', async t => {
+	t.is((await fn.fromFile('test.js')).length, 128);
 });
 
-test('hasha.fromFile(non-existent)', function (t) {
-	t.plan(1);
-	return hasha.fromFile('non-existent-file.txt').catch(function (err) {
+test('hasha.fromFile(non-existent)', async t => {
+	try {
+		await fn.fromFile('non-existent-file.txt');
+	} catch (err) {
 		t.is(err.code, 'ENOENT');
-	});
+	}
 });
 
-test('hasha.fromFileSync()', function (t) {
-	t.is(hasha.fromFileSync('test.js').length, 128);
-	t.end();
+test('hasha.fromFileSync()', t => {
+	t.is(fn.fromFileSync('test.js').length, 128);
 });
