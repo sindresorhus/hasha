@@ -10,6 +10,8 @@ test('hasha()', t => {
 	const fixture = new Buffer('unicorn');
 	t.is(fn(fixture).length, 128);
 	t.is(fn('unicorn').length, 128);
+	t.is(fn(['foo', 'bar']).length, 128);
+	t.is(fn(['foo', new Buffer('bar')]), fn('foobar'));
 	t.true(Buffer.isBuffer(fn(fixture, {encoding: 'buffer'})));
 	t.is(fn(fixture, {algorithm: 'md5'}).length, 32);
 });
