@@ -61,11 +61,13 @@ Returns a hash.
 
 #### input
 
-Type: `buffer`, `string`
+Type: `buffer`, `string`, `array` of `string`|`buffer`
 
 Buffer you want to hash.
 
 While strings are supported you should prefer buffers as they're faster to hash. Though if you already have a string you should not convert it to a buffer.
+
+Pass an array instead of concatenating strings and/or buffers. The output is the same, but arrays do not incur the overhead of concatenation.
 
 #### options
 

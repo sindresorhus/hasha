@@ -4,20 +4,29 @@ var crypto = require('crypto');
 var isStream = require('is-stream');
 var Promise = require('pinkie-promise');
 
-var hasha = module.exports = function (buf, opts) {
+var hasha = module.exports = function (input, opts) {
 	opts = opts || {};
 
-	var inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
 	var outputEncoding = opts.encoding || 'hex';
 
 	if (outputEncoding === 'buffer') {
 		outputEncoding = undefined;
 	}
 
-	return crypto
-		.createHash(opts.algorithm || 'sha512')
-		.update(buf, inputEncoding)
-		.digest(outputEncoding);
+	var hash = crypto.createHash(opts.algorithm || 'sha512');
+
+	var update = function (buf) {
+		var inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
+		hash.update(buf, inputEncoding);
+	};
+
+	if (Array.isArray(input)) {
+		input.forEach(update);
+	} else {
+		update(input);
+	}
+
+	return hash.digest(outputEncoding);
 };
 
 hasha.stream = function (opts) {
