@@ -1,22 +1,21 @@
 'use strict';
-var fs = require('fs');
-var crypto = require('crypto');
-var isStream = require('is-stream');
-var Promise = require('pinkie-promise');
+const fs = require('fs');
+const crypto = require('crypto');
+const isStream = require('is-stream');
 
-var hasha = module.exports = function (input, opts) {
+const hasha = (input, opts) => {
 	opts = opts || {};
 
-	var outputEncoding = opts.encoding || 'hex';
+	let outputEncoding = opts.encoding || 'hex';
 
 	if (outputEncoding === 'buffer') {
 		outputEncoding = undefined;
 	}
 
-	var hash = crypto.createHash(opts.algorithm || 'sha512');
+	const hash = crypto.createHash(opts.algorithm || 'sha512');
 
-	var update = function (buf) {
-		var inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
+	const update = buf => {
+		const inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
 		hash.update(buf, inputEncoding);
 	};
 
@@ -29,28 +28,28 @@ var hasha = module.exports = function (input, opts) {
 	return hash.digest(outputEncoding);
 };
 
-hasha.stream = function (opts) {
+hasha.stream = opts => {
 	opts = opts || {};
 
-	var outputEncoding = opts.encoding || 'hex';
+	let outputEncoding = opts.encoding || 'hex';
 
 	if (outputEncoding === 'buffer') {
 		outputEncoding = undefined;
 	}
 
-	var stream = crypto.createHash(opts.algorithm || 'sha512');
+	const stream = crypto.createHash(opts.algorithm || 'sha512');
 	stream.setEncoding(outputEncoding);
 	return stream;
 };
 
-hasha.fromStream = function (stream, opts) {
+hasha.fromStream = (stream, opts) => {
 	if (!isStream(stream)) {
 		return Promise.reject(new TypeError('Expected a stream'));
 	}
 
 	opts = opts || {};
 
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		stream
 			.on('error', reject)
 			.pipe(hasha.stream(opts))
@@ -61,10 +60,8 @@ hasha.fromStream = function (stream, opts) {
 	});
 };
 
-hasha.fromFile = function (fp, opts) {
-	return hasha.fromStream(fs.createReadStream(fp), opts);
-};
+hasha.fromFile = (fp, opts) => hasha.fromStream(fs.createReadStream(fp), opts);
 
-hasha.fromFileSync = function (fp, opts) {
-	return hasha(fs.readFileSync(fp), opts);
-};
+hasha.fromFileSync = (fp, opts) => hasha(fs.readFileSync(fp), opts);
+
+module.exports = hasha;

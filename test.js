@@ -1,34 +1,33 @@
 import fs from 'fs';
+import {Writable} from 'stream';
 import test from 'ava';
 import isStream from 'is-stream';
 import proxyquire from 'proxyquire';
-import fn from './';
-
-const Writeable = require('stream').Writable;
+import m from '.';
 
 test('hasha()', t => {
-	const fixture = new Buffer('unicorn');
-	t.is(fn(fixture).length, 128);
-	t.is(fn('unicorn').length, 128);
-	t.is(fn(['foo', 'bar']).length, 128);
-	t.is(fn(['foo', new Buffer('bar')]), fn('foobar'));
-	t.true(Buffer.isBuffer(fn(fixture, {encoding: 'buffer'})));
-	t.is(fn(fixture, {algorithm: 'md5'}).length, 32);
+	const fixture = Buffer.from('unicorn');
+	t.is(m(fixture).length, 128);
+	t.is(m('unicorn').length, 128);
+	t.is(m(['foo', 'bar']).length, 128);
+	t.is(m(['foo', Buffer.from('bar')]), m('foobar'));
+	t.true(Buffer.isBuffer(m(fixture, {encoding: 'buffer'})));
+	t.is(m(fixture, {algorithm: 'md5'}).length, 32);
 });
 
 test('hasha.stream()', t => {
-	t.true(isStream(fn.stream()));
+	t.true(isStream(m.stream()));
 });
 
 test('hasha.fromStream()', async t => {
-	t.is((await fn.fromStream(fs.createReadStream('test.js'))).length, 128);
+	t.is((await m.fromStream(fs.createReadStream('test.js'))).length, 128);
 });
 
 test('crypto error', async t => {
 	const proxied = proxyquire('./', {
 		crypto: {
 			createHash: () => {
-				const stream = new Writeable();
+				const stream = new Writable();
 				stream._write = function () {
 					this.emit('error', new Error('some crypto error'));
 				};
@@ -42,17 +41,14 @@ test('crypto error', async t => {
 });
 
 test('hasha.fromFile()', async t => {
-	t.is((await fn.fromFile('test.js')).length, 128);
+	t.is((await m.fromFile('test.js')).length, 128);
 });
 
 test('hasha.fromFile(non-existent)', async t => {
-	try {
-		await fn.fromFile('non-existent-file.txt');
-	} catch (err) {
-		t.is(err.code, 'ENOENT');
-	}
+	const err = await t.throws(m.fromFile('non-existent-file.txt'));
+	t.is(err.code, 'ENOENT');
 });
 
 test('hasha.fromFileSync()', t => {
-	t.is(fn.fromFileSync('test.js').length, 128);
+	t.is(m.fromFileSync('test.js').length, 128);
 });

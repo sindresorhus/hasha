@@ -10,7 +10,7 @@
     "url": "sindresorhus.com"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
     "test": "xo && ava"
@@ -41,8 +41,7 @@
     "easy"
   ],
   "dependencies": {
-    "is-stream": "^1.0.1",
-    "pinkie-promise": "^2.0.0"
+    "is-stream": "^1.0.1"
   },
   "devDependencies": {
     "ava": "*",

@@ -27,24 +27,24 @@ $ npm install --save hasha
 ## Usage
 
 ```js
-var hasha = require('hasha');
+const hasha = require('hasha');
 
 hasha('unicorn');
 //=> 'e233b19aabc7d5e53826fb734d1222f1f0444c3a3fc67ff4af370a66e7cadd2cb24009f1bc86f0bed12ca5fcb226145ad10fc5f650f6ef0959f8aadc5a594b27'
 ```
 
 ```js
-var hasha = require('hasha');
+const hasha = require('hasha');
 
-// hash the process input and output the hash sum
+// Hash the process input and output the hash sum
 process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 ```
 
 ```js
-var hasha = require('hasha');
+const hasha = require('hasha');
 
-// get the MD5 hash of an image
-hasha.fromFile('unicorn.png', {algorithm: 'md5'}).then(function (hash) {
+// Get the MD5 hash of an image
+hasha.fromFile('unicorn.png', {algorithm: 'md5'}).then(hash => {
 	console.log(hash);
 	//=> '1abcb33beeb811dca15f0ac3e47b88d9'
 });
@@ -61,11 +61,11 @@ Returns a hash.
 
 #### input
 
-Type: `buffer`, `string`, `array` of `string`|`buffer`
+Type: `Buffer` `string` `Buffer[]` `string[]`
 
 Buffer you want to hash.
 
-While strings are supported you should prefer buffers as they're faster to hash. Though if you already have a string you should not convert it to a buffer.
+While strings are supported you should prefer buffers as they're faster to hash. Although if you already have a string you should not convert it to a buffer.
 
 Pass an array instead of concatenating strings and/or buffers. The output is the same, but arrays do not incur the overhead of concatenation.
 
@@ -73,17 +73,17 @@ Pass an array instead of concatenating strings and/or buffers. The output is the
 
 ##### encoding
 
-Type: `string`  
-Default: `hex`  
-Values: `hex`, `base64`, `buffer`, `binary`
+Type: `string`<br>
+Default: `hex`<br>
+Values: `hex` `base64` `buffer` `binary`
 
 Encoding of the returned hash.
 
 ##### algorithm
 
-Type: `string`  
-Default: `sha512`  
-Values: `md5`, `sha1`, `sha256`, `sha512`, etc *([platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm))*
+Type: `string`<br>
+Default: `sha512`<br>
+Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm))*
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
 
@@ -93,11 +93,11 @@ Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_clas
 
 ### hasha.fromStream(stream, [options])
 
-Returns a promise that resolves to a hash.
+Returns a `Promise` for a hash.
 
 ### hasha.fromFile(filepath, [options])
 
-Returns a promise that resolves to a hash.
+Returns a `Promise` for a hash.
 
 ### hasha.fromFileSync(filepath, [options])
 
@@ -117,4 +117,4 @@ Returns a hash.
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)
