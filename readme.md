@@ -75,7 +75,7 @@ Pass an array instead of concatenating strings and/or buffers. The output is the
 
 Type: `string`<br>
 Default: `hex`<br>
-Values: `hex` `base64` `buffer` `binary`
+Values: `hex` `base64` `buffer` `binary`-Node.js 4 `latin1`-Node.js 6+
 
 Encoding of the returned hash.
 
