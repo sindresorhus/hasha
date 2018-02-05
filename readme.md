@@ -104,11 +104,6 @@ Returns a `Promise` for a hash.
 Returns a hash.
 
 
-## Resources
-
-- [Hasha: A Friendly Crypto API • DailyJS](http://dailyjs.com/2015/06/12/hasha-a-friendly-crypto-api/)
-
-
 ## Related
 
 - [hasha-cli](https://github.com/sindresorhus/hasha-cli) - CLI for this module
