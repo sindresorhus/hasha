@@ -107,7 +107,9 @@ Returns a hash.
 ## Related
 
 - [hasha-cli](https://github.com/sindresorhus/hasha-cli) - CLI for this module
+- [crypto-hash](https://github.com/sindresorhus/crypto-hash) - Tiny hashing module that uses the native crypto API in Node.js and the browser
 - [hash-obj](https://github.com/sindresorhus/hash-obj) - Get the hash of an object
+- [md5-hex](https://github.com/sindresorhus/md5-hex) - Create a MD5 hash with hex encoding
 
 
 ## License
