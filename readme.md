@@ -2,7 +2,7 @@
 	<br>
 	<br>
 	<br>
-	<img width="380" src="https://rawgit.com/sindresorhus/hasha/master/media/logo.svg" alt="hasha">
+	<img width="380" src="media/logo.svg" alt="hasha">
 	<br>
 	<br>
 	<br>
@@ -20,7 +20,7 @@ Convenience wrapper around the core [`crypto` Hash class](https://nodejs.org/api
 ## Install
 
 ```
-$ npm install --save hasha
+$ npm install hasha
 ```
 
 
