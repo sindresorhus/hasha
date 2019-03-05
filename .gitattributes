@@ -1,3 +1,1 @@
-* text=auto
-*.js text eol=lf
-*.ai binary
+* text=auto eol=lf

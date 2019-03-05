@@ -43,11 +43,13 @@ process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 ```js
 const hasha = require('hasha');
 
-// Get the MD5 hash of an image
-hasha.fromFile('unicorn.png', {algorithm: 'md5'}).then(hash => {
+(async () => {
+	// Get the MD5 hash of an image
+	const hash = await hasha.fromFile('unicorn.png', {algorithm: 'md5'});
+
 	console.log(hash);
 	//=> '1abcb33beeb811dca15f0ac3e47b88d9'
-});
+})();
 ```
 
 
@@ -61,7 +63,7 @@ Returns a hash.
 
 #### input
 
-Type: `Buffer` `string` `Buffer[]` `string[]`
+Type: `Buffer | string | Buffer[] | string[]`
 
 Buffer you want to hash.
 
@@ -75,7 +77,7 @@ Pass an array instead of concatenating strings and/or buffers. The output is the
 
 Type: `string`<br>
 Default: `hex`<br>
-Values: `hex` `base64` `buffer` `latin1` (Node.js 6+) `binary` (Node.js 4)
+Values: `hex` `base64` `buffer` `latin1`
 
 Encoding of the returned hash.
 

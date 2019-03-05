@@ -3,20 +3,18 @@ const fs = require('fs');
 const crypto = require('crypto');
 const isStream = require('is-stream');
 
-const hasha = (input, opts) => {
-	opts = opts || {};
-
-	let outputEncoding = opts.encoding || 'hex';
+const hasha = (input, options = {}) => {
+	let outputEncoding = options.encoding || 'hex';
 
 	if (outputEncoding === 'buffer') {
 		outputEncoding = undefined;
 	}
 
-	const hash = crypto.createHash(opts.algorithm || 'sha512');
+	const hash = crypto.createHash(options.algorithm || 'sha512');
 
-	const update = buf => {
-		const inputEncoding = typeof buf === 'string' ? 'utf8' : undefined;
-		hash.update(buf, inputEncoding);
+	const update = buffer => {
+		const inputEncoding = typeof buffer === 'string' ? 'utf8' : undefined;
+		hash.update(buffer, inputEncoding);
 	};
 
 	if (Array.isArray(input)) {
@@ -28,31 +26,27 @@ const hasha = (input, opts) => {
 	return hash.digest(outputEncoding);
 };
 
-hasha.stream = opts => {
-	opts = opts || {};
-
-	let outputEncoding = opts.encoding || 'hex';
+hasha.stream = (options = {}) => {
+	let outputEncoding = options.encoding || 'hex';
 
 	if (outputEncoding === 'buffer') {
 		outputEncoding = undefined;
 	}
 
-	const stream = crypto.createHash(opts.algorithm || 'sha512');
+	const stream = crypto.createHash(options.algorithm || 'sha512');
 	stream.setEncoding(outputEncoding);
 	return stream;
 };
 
-hasha.fromStream = (stream, opts) => {
+hasha.fromStream = (stream, options = {}) => {
 	if (!isStream(stream)) {
 		return Promise.reject(new TypeError('Expected a stream'));
 	}
 
-	opts = opts || {};
-
 	return new Promise((resolve, reject) => {
 		stream
 			.on('error', reject)
-			.pipe(hasha.stream(opts))
+			.pipe(hasha.stream(options))
 			.on('error', reject)
 			.on('finish', function () {
 				resolve(this.read());
@@ -60,8 +54,8 @@ hasha.fromStream = (stream, opts) => {
 	});
 };
 
-hasha.fromFile = (fp, opts) => hasha.fromStream(fs.createReadStream(fp), opts);
+hasha.fromFile = (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
 
-hasha.fromFileSync = (fp, opts) => hasha(fs.readFileSync(fp), opts);
+hasha.fromFileSync = (filePath, options) => hasha(fs.readFileSync(filePath), options);
 
 module.exports = hasha;
