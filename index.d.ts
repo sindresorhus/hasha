@@ -1,6 +1,6 @@
 /// <reference types="node"/>
 import {Hash} from 'crypto';
-import {Readable} from 'stream';
+import {Readable as ReadableStream} from 'stream';
 
 export type ToStringEncoding = 'hex' | 'base64' | 'latin1';
 export type HashaInput = string | string[] | Buffer | Buffer[];
@@ -53,13 +53,13 @@ declare const hasha: {
 	 * @param stream - A stream you want to hash.
 	 * @returns A `Promise` for a hash.
 	 */
-	fromStream(stream: Readable): Promise<string | null>;
+	fromStream(stream: ReadableStream): Promise<string | null>;
 	fromStream(
-		stream: Readable,
+		stream: ReadableStream,
 		options?: Options<ToStringEncoding>
 	): Promise<string | null>;
 	fromStream(
-		stream: Readable,
+		stream: ReadableStream,
 		options?: Options<'buffer'>
 	): Promise<Buffer | null>;
 
