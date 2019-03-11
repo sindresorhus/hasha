@@ -55,7 +55,7 @@ const hasha = require('hasha');
 
 ## API
 
-See the Node.js [`crypto` docs](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm) for more about hashing.
+See the Node.js [`crypto` docs](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options) for more about hashing.
 
 ### hasha(input, [options])
 
@@ -85,7 +85,7 @@ Encoding of the returned hash.
 
 Type: `string`<br>
 Default: `sha512`<br>
-Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm))*
+Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
 
@@ -95,15 +95,15 @@ Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_clas
 
 ### hasha.fromStream(stream, [options])
 
-Returns a `Promise` for a hash.
+Returns a `Promise` for the calculated hash.
 
 ### hasha.fromFile(filepath, [options])
 
-Returns a `Promise` for a hash.
+Returns a `Promise` for the calculated file hash.
 
 ### hasha.fromFileSync(filepath, [options])
 
-Returns a hash.
+Returns the calculated file hash.
 
 
 ## Related

@@ -15,13 +15,13 @@ export interface Options<EncodingType = HashaEncoding> {
 	readonly encoding?: EncodingType;
 
 	/**
-	 * Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm))*
+	 * Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
 	 *
 	 * *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
 	 *
 	 * @default 'sha512'
 	 */
-	readonly algorithm?: string;
+	readonly algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512' | string;
 }
 
 declare const hasha: {
@@ -51,7 +51,7 @@ declare const hasha: {
 	 * Calculate the hash for a stream.
 	 *
 	 * @param stream - A stream you want to hash.
-	 * @returns A `Promise` for a hash.
+	 * @returns The calculated hash.
 	 */
 	fromStream(stream: ReadableStream): Promise<string | null>;
 	fromStream(
@@ -67,7 +67,7 @@ declare const hasha: {
 	 * Calculate the hash for a file.
 	 *
 	 * @param filePath - Path to a file you want to hash.
-	 * @returns A `Promise` for the file hash.
+	 * @returns The calculated file hash.
 	 */
 	fromFile(filePath: string): Promise<string | null>;
 	fromFile(
@@ -83,7 +83,7 @@ declare const hasha: {
 	 * Synchronously calculate the hash for a file.
 	 *
 	 * @param filePath - Path to a file you want to hash.
-	 * @returns The file hash.
+	 * @returns The calculated file hash.
 	 */
 	fromFileSync(filePath: string): string;
 	fromFileSync(filePath: string, options: Options<ToStringEncoding>): string;
