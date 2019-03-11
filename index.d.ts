@@ -6,6 +6,9 @@ export type ToStringEncoding = 'hex' | 'base64' | 'latin1';
 export type HashaInput = string | string[] | Buffer | Buffer[];
 export type HashaEncoding = ToStringEncoding | 'buffer';
 
+// TODO: Remove this clutter after https://github.com/Microsoft/TypeScript/issues/29729 is resolved
+export type AlgorithmName = string & {algorithm?: unknown};
+
 export interface Options<EncodingType = HashaEncoding> {
 	/**
 	 * Encoding of the returned hash.
@@ -21,7 +24,7 @@ export interface Options<EncodingType = HashaEncoding> {
 	 *
 	 * @default 'sha512'
 	 */
-	readonly algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512' | string;
+	readonly algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512' | AlgorithmName;
 }
 
 declare const hasha: {
