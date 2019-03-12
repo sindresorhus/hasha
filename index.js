@@ -38,12 +38,13 @@ hasha.stream = (options = {}) => {
 	return stream;
 };
 
-hasha.fromStream = (stream, options = {}) => {
+hasha.fromStream = async (stream, options = {}) => {
 	if (!isStream(stream)) {
-		return Promise.reject(new TypeError('Expected a stream'));
+		throw new TypeError('Expected a stream');
 	}
 
 	return new Promise((resolve, reject) => {
+		// TODO: Use `stream.pipeline` and `stream.finished` when targeting Node.js 10
 		stream
 			.on('error', reject)
 			.pipe(hasha.stream(options))
@@ -54,7 +55,7 @@ hasha.fromStream = (stream, options = {}) => {
 	});
 };
 
-hasha.fromFile = (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
+hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
 
 hasha.fromFileSync = (filePath, options) => hasha(fs.readFileSync(filePath), options);
 

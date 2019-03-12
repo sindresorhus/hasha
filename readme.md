@@ -73,6 +73,8 @@ Pass an array instead of concatenating strings and/or buffers. The output is the
 
 #### options
 
+Type: `Object`
+
 ##### encoding
 
 Type: `string`<br>
