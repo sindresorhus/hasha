@@ -6,6 +6,10 @@ expectType<string>(hasha('unicorn', {algorithm: 'md5'}));
 expectType<string>(hasha('unicorn', {encoding: 'latin1'}));
 expectType<Buffer>(hasha('unicorn', {encoding: 'buffer'}));
 
+expectType<string>(hasha(['unicorn']));
+expectType<string>(hasha([Buffer.from('unicorn', 'utf8')]));
+expectType<string>(hasha(['unicorn', Buffer.from('unicorn', 'utf8')]));
+
 process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 
 expectType<Promise<string | null>>(hasha.fromStream(process.stdin));

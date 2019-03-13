@@ -63,7 +63,7 @@ Returns a hash.
 
 #### input
 
-Type: `Buffer | string | Buffer[] | string[]`
+Type: `Buffer | string | Array<Buffer | string>`
 
 Buffer you want to hash.
 
