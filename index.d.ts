@@ -3,7 +3,7 @@ import {Hash} from 'crypto';
 import {Readable as ReadableStream} from 'stream';
 
 export type ToStringEncoding = 'hex' | 'base64' | 'latin1';
-export type HashaInput = string | string[] | Buffer | Buffer[];
+export type HashaInput = Buffer | string | Array<Buffer | string>;
 export type HashaEncoding = ToStringEncoding | 'buffer';
 
 // TODO: Remove this clutter after https://github.com/Microsoft/TypeScript/issues/29729 is resolved
