@@ -1,6 +1,6 @@
 {
 	"name": "hasha",
-	"version": "4.0.0",
+	"version": "4.0.1",
 	"description": "Hashing made simple. Get the hash of a buffer/string/stream/file.",
 	"license": "MIT",
 	"repository": "sindresorhus/hasha",
