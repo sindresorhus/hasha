@@ -1,96 +1,135 @@
 /// <reference types="node"/>
+import {LiteralUnion} from 'type-fest';
 import {Hash} from 'crypto';
-import {Readable as ReadableStream} from 'stream';
 
-export type ToStringEncoding = 'hex' | 'base64' | 'latin1';
-export type HashaInput = Buffer | string | Array<Buffer | string>;
-export type HashaEncoding = ToStringEncoding | 'buffer';
+declare namespace hasha {
+	type ToStringEncoding = 'hex' | 'base64' | 'latin1';
+	type HashaInput = Buffer | string | Array<Buffer | string>;
+	type HashaEncoding = ToStringEncoding | 'buffer';
 
-// TODO: Remove this clutter after https://github.com/Microsoft/TypeScript/issues/29729 is resolved
-export type AlgorithmName = string & {algorithm?: unknown};
+	type AlgorithmName = LiteralUnion<
+		'md5' | 'sha1' | 'sha256' | 'sha512',
+		string
+	>;
 
-export interface Options<EncodingType = HashaEncoding> {
-	/**
-	 * Encoding of the returned hash.
-	 *
-	 * @default 'hex'
-	 */
-	readonly encoding?: EncodingType;
+	interface Options<EncodingType = HashaEncoding> {
+		/**
+		Encoding of the returned hash.
 
-	/**
-	 * Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
-	 *
-	 * *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
-	 *
-	 * @default 'sha512'
-	 */
-	readonly algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512' | AlgorithmName;
+		@default 'hex'
+		*/
+		readonly encoding?: EncodingType;
+
+		/**
+		Values: `md5` `sha1` `sha256` `sha512` _([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))_
+
+		_The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)_
+
+		@default 'sha512'
+		*/
+		readonly algorithm?: AlgorithmName;
+	}
 }
 
 declare const hasha: {
 	/**
-	 * Calculate the hash for a `string`, `Buffer`, or an array thereof.
-	 *
-	 * @param input - Data you want to hash.
-	 *
-	 * While strings are supported you should prefer buffers as they're faster to hash. Although if you already have a string you should not convert it to a buffer.
-	 *
-	 * Pass an array instead of concatenating strings and/or buffers. The output is the same, but arrays do not incur the overhead of concatenation.
-	 *
-	 * @returns A hash.
-	 */
-	(input: HashaInput): string;
-	(input: HashaInput, options: Options<ToStringEncoding>): string;
-	(input: HashaInput, options: Options<'buffer'>): Buffer;
+	Calculate the hash for a `string`, `Buffer`, or an array thereof.
+
+	@param input - Data you want to hash.
+
+	While strings are supported you should prefer buffers as they're faster to hash. Although if you already have a string you should not convert it to a buffer.
+
+	Pass an array instead of concatenating strings and/or buffers. The output is the same, but arrays do not incur the overhead of concatenation.
+
+	@returns A hash.
+
+	@example
+	```
+	import hasha = require('hasha');
+
+	hasha('unicorn');
+	//=> 'e233b19aabc7d5e53826fb734d1222f1f0444c3a3fc67ff4af370a66e7cadd2cb24009f1bc86f0bed12ca5fcb226145ad10fc5f650f6ef0959f8aadc5a594b27'
+	```
+	*/
+	(input: hasha.HashaInput): string;
+	(
+		input: hasha.HashaInput,
+		options: hasha.Options<hasha.ToStringEncoding>
+	): string;
+	(input: hasha.HashaInput, options: hasha.Options<'buffer'>): Buffer;
 
 	/**
-	 * Create a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
-	 *
-	 * @returns The created hash transform stream.
-	 */
-	stream(options?: Options<HashaEncoding>): Hash;
+	Create a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
+
+	@returns The created hash transform stream.
+
+	@example
+	```
+	import hasha = require('hasha');
+
+	// Hash the process input and output the hash sum
+	process.stdin.pipe(hasha.stream()).pipe(process.stdout);
+	```
+	*/
+	stream(options?: hasha.Options<hasha.HashaEncoding>): Hash;
 
 	/**
-	 * Calculate the hash for a stream.
-	 *
-	 * @param stream - A stream you want to hash.
-	 * @returns The calculated hash.
-	 */
-	fromStream(stream: ReadableStream): Promise<string | null>;
+	Calculate the hash for a stream.
+
+	@param stream - A stream you want to hash.
+	@returns The calculated hash.
+	*/
+	fromStream(stream: NodeJS.ReadableStream): Promise<string | null>;
 	fromStream(
-		stream: ReadableStream,
-		options?: Options<ToStringEncoding>
+		stream: NodeJS.ReadableStream,
+		options?: hasha.Options<hasha.ToStringEncoding>
 	): Promise<string | null>;
 	fromStream(
-		stream: ReadableStream,
-		options?: Options<'buffer'>
+		stream: NodeJS.ReadableStream,
+		options?: hasha.Options<'buffer'>
 	): Promise<Buffer | null>;
 
 	/**
-	 * Calculate the hash for a file.
-	 *
-	 * @param filePath - Path to a file you want to hash.
-	 * @returns The calculated file hash.
-	 */
+	Calculate the hash for a file.
+
+	@param filePath - Path to a file you want to hash.
+	@returns The calculated file hash.
+
+	@example
+	```
+	import hasha = require('hasha');
+
+	(async () => {
+		// Get the MD5 hash of an image
+		const hash = await hasha.fromFile('unicorn.png', {algorithm: 'md5'});
+
+		console.log(hash);
+		//=> '1abcb33beeb811dca15f0ac3e47b88d9'
+	})();
+	```
+	*/
 	fromFile(filePath: string): Promise<string | null>;
 	fromFile(
 		filePath: string,
-		options: Options<ToStringEncoding>
+		options: hasha.Options<hasha.ToStringEncoding>
 	): Promise<string | null>;
 	fromFile(
 		filePath: string,
-		options: Options<'buffer'>
+		options: hasha.Options<'buffer'>
 	): Promise<Buffer | null>;
 
 	/**
-	 * Synchronously calculate the hash for a file.
-	 *
-	 * @param filePath - Path to a file you want to hash.
-	 * @returns The calculated file hash.
-	 */
+	Synchronously calculate the hash for a file.
+
+	@param filePath - Path to a file you want to hash.
+	@returns The calculated file hash.
+	*/
 	fromFileSync(filePath: string): string;
-	fromFileSync(filePath: string, options: Options<ToStringEncoding>): string;
-	fromFileSync(filePath: string, options: Options<'buffer'>): Buffer;
+	fromFileSync(
+		filePath: string,
+		options: hasha.Options<hasha.ToStringEncoding>
+	): string;
+	fromFileSync(filePath: string, options: hasha.Options<'buffer'>): Buffer;
 };
 
-export default hasha;
+export = hasha;
