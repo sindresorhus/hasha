@@ -1,5 +1,5 @@
-import {expectType} from 'tsd-check';
-import hasha from '.';
+import {expectType} from 'tsd';
+import hasha = require('.');
 
 expectType<string>(hasha('unicorn'));
 expectType<string>(hasha('unicorn', {algorithm: 'md5'}));
