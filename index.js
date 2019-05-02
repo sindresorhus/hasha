@@ -5,7 +5,7 @@ const isStream = require('is-stream');
 
 let Worker;
 try {
-	Worker = require('worker_threads').Worker; // eslint-disable-line import/no-unresolved
+	Worker = require('worker_threads').Worker; // eslint-disable-line import/no-unresolved, eslint-comments/no-unused-disable
 } catch (error) {
 	Worker = undefined;
 }
