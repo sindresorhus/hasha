@@ -1,7 +1,55 @@
 'use strict';
 const fs = require('fs');
 const crypto = require('crypto');
+const {Worker} = require('worker_threads');
 const isStream = require('is-stream');
+
+let worker; // Lazy
+let taskIdCounter = 0;
+const tasks = new Map();
+
+const recreateWorkerError = sourceError => {
+	const error = new Error(sourceError.message);
+
+	for (const key of Object.keys(sourceError)) {
+		if (key !== 'message') {
+			error[key] = sourceError[key];
+		}
+	}
+
+	return error;
+};
+
+const createWorker = () => {
+	worker = new Worker('./thread.js');
+	worker.on('message', message => {
+		const task = tasks.get(message.id);
+		tasks.delete(message.id);
+		if (tasks.size === 0) {
+			worker.unref();
+		}
+
+		if (message.error === undefined) {
+			task.resolve(message.value);
+		} else {
+			task.reject(recreateWorkerError(message.error));
+		}
+	});
+	worker.on('error', err => {
+		// Any error here is effectively an equivalent of segfault, and have no scope, so we just throw it on callback level
+		throw err;
+	});
+};
+
+const taskWorker = (value, transferList) => new Promise((resolve, reject) => {
+	const id = taskIdCounter++;
+	tasks.set(id, {resolve, reject});
+	if (worker === undefined) {
+		createWorker();
+	}
+
+	worker.postMessage({id, value}, transferList);
+});
 
 const hasha = (input, options = {}) => {
 	let outputEncoding = options.encoding || 'hex';
@@ -55,7 +103,18 @@ hasha.fromStream = async (stream, options = {}) => {
 	});
 };
 
-hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
+hasha.fromFile = async (filePath, options) => {
+	const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
+	const encoding = options !== undefined && options.encoding !== undefined ? options.encoding : 'hex';
+
+	const hash = await taskWorker({filePath, algorithm});
+
+	if (encoding === 'buffer') {
+		return Buffer.from(hash);
+	}
+
+	return Buffer.from(hash).toString(encoding);
+};
 
 hasha.fromFileSync = (filePath, options) => hasha(fs.readFileSync(filePath), options);
 

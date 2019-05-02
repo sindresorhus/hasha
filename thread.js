@@ -1,0 +1,33 @@
+'use strict';
+const {parentPort} = require('worker_threads');
+const crypto = require('crypto');
+const fs = require('fs');
+
+const hashFile = (algorithm, filePath) => new Promise((resolve, reject) => {
+	const hasher = crypto.createHash(algorithm);
+	fs.createReadStream(filePath)
+		.on('error', reject)
+		.pipe(hasher)
+		.on('error', reject)
+		.on('finish', function () {
+			resolve(this.read().buffer);
+		});
+});
+
+parentPort.on('message', async message => {
+	const {algorithm, filePath} = message.value;
+	try {
+		const value = await hashFile(algorithm, filePath);
+		parentPort.postMessage({id: message.id, value}, [value]);
+	} catch (error) {
+		const newError = {message: error.message, stack: error.stack};
+
+		for (const key of Object.keys(error)) {
+			if (typeof error[key] !== 'object') {
+				newError[key] = error[key];
+			}
+		}
+
+		parentPort.postMessage({id: message.id, error: newError});
+	}
+});
