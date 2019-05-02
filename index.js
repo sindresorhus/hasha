@@ -1,8 +1,14 @@
 'use strict';
 const fs = require('fs');
 const crypto = require('crypto');
-const {Worker} = require('worker_threads');
 const isStream = require('is-stream');
+
+let Worker;
+try {
+	Worker = require('worker_threads').Worker;
+} catch (error) {
+	Worker = undefined;
+}
 
 let worker; // Lazy
 let taskIdCounter = 0;
@@ -103,18 +109,22 @@ hasha.fromStream = async (stream, options = {}) => {
 	});
 };
 
-hasha.fromFile = async (filePath, options) => {
-	const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
-	const encoding = options !== undefined && options.encoding !== undefined ? options.encoding : 'hex';
+if (Worker === undefined) {
+	hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
+} else {
+	hasha.fromFile = async (filePath, options) => {
+		const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
+		const encoding = options !== undefined && options.encoding !== undefined ? options.encoding : 'hex';
 
-	const hash = await taskWorker({filePath, algorithm});
+		const hash = await taskWorker({filePath, algorithm});
 
-	if (encoding === 'buffer') {
-		return Buffer.from(hash);
-	}
+		if (encoding === 'buffer') {
+			return Buffer.from(hash);
+		}
 
-	return Buffer.from(hash).toString(encoding);
-};
+		return Buffer.from(hash).toString(encoding);
+	};
+}
 
 hasha.fromFileSync = (filePath, options) => hasha(fs.readFileSync(filePath), options);
 
