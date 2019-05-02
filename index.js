@@ -3,12 +3,15 @@ const fs = require('fs');
 const crypto = require('crypto');
 const isStream = require('is-stream');
 
-let Worker;
-try {
-	Worker = require('worker_threads').Worker; // eslint-disable-line import/no-unresolved, eslint-comments/no-unused-disable
-} catch (error) {
-	Worker = undefined;
-}
+const requireOptional = (name, defaultValue) => {
+	try {
+		return require(name);
+	} catch (error) {
+		return defaultValue;
+	}
+};
+
+const {Worker} = requireOptional('worker_threads', {});
 
 let worker; // Lazy
 let taskIdCounter = 0;
