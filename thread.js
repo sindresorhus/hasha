@@ -1,7 +1,7 @@
 'use strict';
-const {parentPort} = require('worker_threads');
-const crypto = require('crypto');
 const fs = require('fs');
+const crypto = require('crypto');
+const {parentPort} = require('worker_threads'); // eslint-disable-line import/no-unresolved
 
 const hashFile = (algorithm, filePath) => new Promise((resolve, reject) => {
 	const hasher = crypto.createHash(algorithm);
