@@ -85,22 +85,6 @@ const hasha = (input, options = {}) => {
 	return hash.digest(outputEncoding);
 };
 
-hasha.async = async (input, options) => {
-	const algorithm = (options === undefined || options.algorithm === undefined) ? 'sha512' : options.algorithm;
-	let outputEncoding = (options === undefined || options.encoding === undefined) ? 'hex' : options.encoding;
-	if (outputEncoding === 'buffer') {
-		outputEncoding = undefined;
-	}
-
-	const hash = await taskWorker('hashInput', [algorithm || 'sha512', input]);
-
-	if (outputEncoding === undefined) {
-		return Buffer.from(hash);
-	}
-
-	return Buffer.from(hash).toString(outputEncoding);
-};
-
 hasha.stream = (options = {}) => {
 	let outputEncoding = options.encoding || 'hex';
 
@@ -132,6 +116,7 @@ hasha.fromStream = async (stream, options = {}) => {
 
 if (Worker === undefined) {
 	hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
+	hasha.async = async (input, options) => hasha(input, options);
 } else {
 	hasha.fromFile = async (filePath, options) => {
 		const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
@@ -144,6 +129,22 @@ if (Worker === undefined) {
 		}
 
 		return Buffer.from(hash).toString(encoding);
+	};
+
+	hasha.async = async (input, options) => {
+		const algorithm = (options === undefined || options.algorithm === undefined) ? 'sha512' : options.algorithm;
+		let outputEncoding = (options === undefined || options.encoding === undefined) ? 'hex' : options.encoding;
+		if (outputEncoding === 'buffer') {
+			outputEncoding = undefined;
+		}
+
+		const hash = await taskWorker('hashInput', [algorithm || 'sha512', input]);
+
+		if (outputEncoding === undefined) {
+			return Buffer.from(hash);
+		}
+
+		return Buffer.from(hash).toString(outputEncoding);
 	};
 }
 
