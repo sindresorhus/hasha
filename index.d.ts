@@ -59,6 +59,36 @@ declare const hasha: {
 	(input: hasha.HashaInput, options: hasha.Options<'buffer'>): Buffer;
 
 	/**
+	Asynchronously calculate the hash for a `string`, `Buffer`, or an array thereof.
+
+	In Node.js 12 or later, the operation is executed using worker_threads. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
+
+	@param input - Data you want to hash.
+
+	While strings are supported you should prefer buffers as they're faster to hash. Although if you already have a string you should not convert it to a buffer.
+
+	Pass an array instead of concatenating strings and/or buffers. The output is the same, but arrays do not incur the overhead of concatenation.
+
+	@returns A hash.
+
+	@example
+	```
+	const hasha = require('hasha');
+
+	(async () => {
+		console.log(await hasha.async('unicorn'));
+		//=> 'e233b19aabc7d5e53826fb734d1222f1f0444c3a3fc67ff4af370a66e7cadd2cb24009f1bc86f0bed12ca5fcb226145ad10fc5f650f6ef0959f8aadc5a594b27'
+	})();
+	```
+	*/
+	async(input: hasha.HashaInput): Promise<string>;
+	async(
+		input: hasha.HashaInput,
+		options: hasha.Options<hasha.ToStringEncoding>
+	): Promise<string>;
+	async(input: hasha.HashaInput, options: hasha.Options<'buffer'>): Promise<Buffer>;
+
+	/**
 	Create a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
 
 	@returns The created hash transform stream.

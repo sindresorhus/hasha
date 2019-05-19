@@ -36,6 +36,15 @@ hasha('unicorn');
 ```js
 const hasha = require('hasha');
 
+(async () => {
+	console.log(await hasha.async('unicorn'));
+	//=> 'e233b19aabc7d5e53826fb734d1222f1f0444c3a3fc67ff4af370a66e7cadd2cb24009f1bc86f0bed12ca5fcb226145ad10fc5f650f6ef0959f8aadc5a594b27'
+})();
+```
+
+```js
+const hasha = require('hasha');
+
 // Hash the process input and output the hash sum
 process.stdin.pipe(hasha.stream()).pipe(process.stdout);
 ```
@@ -90,6 +99,10 @@ Default: `sha512`<br>
 Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
+
+### hasha.async(input, [options])
+
+Returns a hash asynchronously.
 
 ### hasha.stream([options])
 
