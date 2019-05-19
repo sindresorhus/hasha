@@ -50,14 +50,16 @@ const createWorker = () => {
 	});
 };
 
-const taskWorker = (value, transferList) => new Promise((resolve, reject) => {
+const taskWorker = (method, args, transferList) => new Promise((resolve, reject) => {
 	const id = taskIdCounter++;
 	tasks.set(id, {resolve, reject});
+
 	if (worker === undefined) {
 		createWorker();
 	}
 
-	worker.postMessage({id, value}, transferList);
+	worker.ref();
+	worker.postMessage({id, method, args}, transferList);
 });
 
 const hasha = (input, options = {}) => {
@@ -81,6 +83,22 @@ const hasha = (input, options = {}) => {
 	}
 
 	return hash.digest(outputEncoding);
+};
+
+hasha.async = async (input, options) => {
+	const algorithm = (options === undefined || options.algorithm === undefined) ? 'sha512' : options.algorithm;
+	let outputEncoding = (options === undefined || options.encoding === undefined) ? 'hex' : options.encoding;
+	if (outputEncoding === 'buffer') {
+		outputEncoding = undefined;
+	}
+
+	const hash = await taskWorker('hashInput', [algorithm || 'sha512', input]);
+
+	if (outputEncoding === undefined) {
+		return Buffer.from(hash);
+	}
+
+	return Buffer.from(hash).toString(outputEncoding);
 };
 
 hasha.stream = (options = {}) => {
@@ -119,7 +137,7 @@ if (Worker === undefined) {
 		const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
 		const encoding = options !== undefined && options.encoding !== undefined ? options.encoding : 'hex';
 
-		const hash = await taskWorker({filePath, algorithm});
+		const hash = await taskWorker('hashFile', [algorithm, filePath]);
 
 		if (encoding === 'buffer') {
 			return Buffer.from(hash);
