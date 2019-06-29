@@ -61,7 +61,7 @@ declare const hasha: {
 	/**
 	Asynchronously calculate the hash for a `string`, `Buffer`, or an array thereof.
 
-	In Node.js 12 or later, the operation is executed using worker_threads. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
+	In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
 
 	@param input - Data you want to hash.
 
@@ -73,7 +73,7 @@ declare const hasha: {
 
 	@example
 	```
-	const hasha = require('hasha');
+	import hasha = require('hasha');
 
 	(async () => {
 		console.log(await hasha.async('unicorn'));
