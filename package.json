@@ -16,6 +16,7 @@
 		"test": "xo && ava && tsd"
 	},
 	"files": [
+		"thread.js",
 		"index.js",
 		"index.d.ts"
 	],

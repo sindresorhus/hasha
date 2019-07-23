@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const isStream = require('is-stream');
 
@@ -20,9 +21,9 @@ const tasks = new Map();
 const recreateWorkerError = sourceError => {
 	const error = new Error(sourceError.message);
 
-	for (const key of Object.keys(sourceError)) {
+	for (const [key, value] of Object.entries(sourceError)) {
 		if (key !== 'message') {
-			error[key] = sourceError[key];
+			error[key] = value;
 		}
 	}
 
@@ -30,7 +31,7 @@ const recreateWorkerError = sourceError => {
 };
 
 const createWorker = () => {
-	worker = new Worker('./thread.js');
+	worker = new Worker(path.join(__dirname, 'thread.js'));
 	worker.on('message', message => {
 		const task = tasks.get(message.id);
 		tasks.delete(message.id);
@@ -44,9 +45,9 @@ const createWorker = () => {
 			task.reject(recreateWorkerError(message.error));
 		}
 	});
-	worker.on('error', err => {
+	worker.on('error', error => {
 		// Any error here is effectively an equivalent of segfault, and have no scope, so we just throw it on callback level
-		throw err;
+		throw error;
 	});
 };
 
@@ -131,20 +132,18 @@ if (Worker === undefined) {
 		return Buffer.from(hash).toString(encoding);
 	};
 
-	hasha.async = async (input, options) => {
-		const algorithm = (options === undefined || options.algorithm === undefined) ? 'sha512' : options.algorithm;
-		let outputEncoding = (options === undefined || options.encoding === undefined) ? 'hex' : options.encoding;
-		if (outputEncoding === 'buffer') {
-			outputEncoding = undefined;
+	hasha.async = async (input, {algorithm = 'sha512', encoding = 'hex'} = {}) => {
+		if (encoding === 'buffer') {
+			encoding = undefined;
 		}
 
-		const hash = await taskWorker('hashInput', [algorithm || 'sha512', input]);
+		const hash = await taskWorker('hash', [algorithm || 'sha512', input]);
 
-		if (outputEncoding === undefined) {
+		if (encoding === undefined) {
 			return Buffer.from(hash);
 		}
 
-		return Buffer.from(hash).toString(outputEncoding);
+		return Buffer.from(hash).toString(encoding);
 	};
 }
 

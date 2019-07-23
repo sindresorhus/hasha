@@ -15,7 +15,7 @@ const handlers = {
 				resolve({value: buffer, transferList: [buffer]});
 			});
 	}),
-	hashInput: async (algorithm, input) => {
+	hash: async (algorithm, input) => {
 		const hasher = crypto.createHash(algorithm);
 
 		if (Array.isArray(input)) {
@@ -45,9 +45,9 @@ parentPort.on('message', async message => {
 	} catch (error) {
 		const newError = {message: error.message, stack: error.stack};
 
-		for (const key of Object.keys(error)) {
-			if (typeof error[key] !== 'object') {
-				newError[key] = error[key];
+		for (const [key, value] of Object.entries(error)) {
+			if (typeof value !== 'object') {
+				newError[key] = value;
 			}
 		}
 
