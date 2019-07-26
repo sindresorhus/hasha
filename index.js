@@ -7,7 +7,7 @@ const isStream = require('is-stream');
 const requireOptional = (name, defaultValue) => {
 	try {
 		return require(name);
-	} catch (error) {
+	} catch (_) {
 		return defaultValue;
 	}
 };
