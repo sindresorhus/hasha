@@ -16,9 +16,9 @@
 		"test": "xo && ava && tsd"
 	},
 	"files": [
-		"thread.js",
 		"index.js",
-		"index.d.ts"
+		"index.d.ts",
+		"thread.js"
 	],
 	"keywords": [
 		"hash",
