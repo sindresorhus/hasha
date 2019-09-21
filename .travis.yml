@@ -1,5 +1,11 @@
 language: node_js
-node_js:
-  - '12'
-  - '10'
-  - '8'
+
+matrix:
+  include:
+    - node_js: '12'
+    - node_js: '10'
+      script:
+        - npx -n=--experimental-worker ava
+        - npx -n=--experimental-worker tsd
+    - node_js: '8'
+      script: ava

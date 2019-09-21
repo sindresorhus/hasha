@@ -52,6 +52,37 @@ const hasha = require('hasha');
 })();
 ```
 
+```js
+// Requires Node.js v10.5 or later.
+const Worker = require('hasha/worker');
+
+(async () => {
+	const hash = await worker.fromInput('unicorn');
+
+	console.log('hash');
+	//=> 'e233b19aabc7d5e53826fb734d1222f1f0444c3a3fc67ff4af370a66e7cadd2cb24009f1bc86f0bed12ca5fcb226145ad10fc5f650f6ef0959f8aadc5a594b27'
+})();
+```
+
+```js
+// Requires Node.js v10.5 or later.
+const Worker = require('hasha/worker');
+
+const worker1 = new Worker();
+const worker2 = new Worker();
+
+(async () => {
+	const tasks = [
+		worker1.fromFile('unicorn.png', {algorithm: 'md5'}),
+		worker2.fromFile('unicorn.png', {algorithm: 'md5'})
+	];
+
+	const hashes = await Promise.all(tasks);
+
+	console.log(hashes);
+	//=> [ '1abcb33beeb811dca15f0ac3e47b88d9', ... ]
+})();
+```
 
 ## API
 
@@ -107,6 +138,23 @@ Returns a `Promise` for the calculated file hash.
 
 Returns the calculated file hash.
 
+## Worker API
+
+Requires Node.js v10.5.0 or later.
+
+Class: [Worker](https://nodejs.org/api/worker_threads.html#worker_threads_class_worker)([[options](https://nodejs.org/api/worker_threads.html#worker_threads_new_worker_filename_options)])
+
+### worker.fromInput(input, [options])
+
+Returns a `Promise` for the calculated hash.
+
+### worker.fromFile(filepath, [options])
+
+Returns a `Promise` for the calculated file hash.
+
+### worker.fromFileSync(filepath, [options])
+
+Returns a `Promise` for the calculated file hash.
 
 ## Related
 
