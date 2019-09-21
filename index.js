@@ -119,10 +119,7 @@ if (Worker === undefined) {
 	hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
 	hasha.async = async (input, options) => hasha(input, options);
 } else {
-	hasha.fromFile = async (filePath, options) => {
-		const algorithm = options !== undefined && options.algorithm !== undefined ? options.algorithm : 'sha512';
-		const encoding = options !== undefined && options.encoding !== undefined ? options.encoding : 'hex';
-
+	hasha.fromFile = async (filePath, {algorithm = 'sha512', encoding = 'hex'} = {}) => {
 		const hash = await taskWorker('hashFile', [algorithm, filePath]);
 
 		if (encoding === 'buffer') {
@@ -137,7 +134,7 @@ if (Worker === undefined) {
 			encoding = undefined;
 		}
 
-		const hash = await taskWorker('hash', [algorithm || 'sha512', input]);
+		const hash = await taskWorker('hash', [algorithm, input]);
 
 		if (encoding === undefined) {
 			return Buffer.from(hash);

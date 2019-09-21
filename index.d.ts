@@ -122,6 +122,8 @@ declare const hasha: {
 	/**
 	Calculate the hash for a file.
 
+	In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
+
 	@param filePath - Path to a file you want to hash.
 	@returns The calculated file hash.
 

@@ -102,6 +102,8 @@ Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org
 
 ### hasha.async(input, [options])
 
+In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
+
 Returns a hash asynchronously.
 
 ### hasha.stream([options])
@@ -113,6 +115,8 @@ Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_clas
 Returns a `Promise` for the calculated hash.
 
 ### hasha.fromFile(filepath, [options])
+
+In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
 
 Returns a `Promise` for the calculated file hash.
 
