@@ -15,6 +15,15 @@ test('hasha()', t => {
 	t.is(hasha(fixture, {algorithm: 'md5'}).length, 32);
 });
 
+test('hasha.async()', async t => {
+	t.is((await hasha.async(Buffer.from('unicorn'))).length, 128);
+	t.is((await hasha.async('unicorn')).length, 128);
+	t.is((await hasha.async(['foo', 'bar'])).length, 128);
+	t.is(await hasha.async(['foo', Buffer.from('bar')]), hasha('foobar'));
+	t.true(Buffer.isBuffer(await hasha.async(Buffer.from('unicorn'), {encoding: 'buffer'})));
+	t.is((await hasha.async(Buffer.from('unicorn'), {algorithm: 'md5'})).length, 32);
+});
+
 test('hasha.stream()', t => {
 	t.true(isStream(hasha.stream()));
 });
