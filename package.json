@@ -43,14 +43,14 @@
 		"easy"
 	],
 	"dependencies": {
-		"is-stream": "^1.1.0",
-		"type-fest": "^0.3.0"
+		"is-stream": "^2.0.0",
+		"type-fest": "^0.8.0"
 	},
 	"devDependencies": {
-		"@types/node": "^11.13.0",
-		"ava": "^1.4.1",
+		"@types/node": "^12.7.5",
+		"ava": "^2.4.0",
 		"proxyquire": "^2.1.0",
-		"tsd": "^0.7.2",
+		"tsd": "^0.8.0",
 		"xo": "^0.24.0"
 	},
 	"xo": {

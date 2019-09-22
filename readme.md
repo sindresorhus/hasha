@@ -82,45 +82,45 @@ Pass an array instead of concatenating strings and/or buffers. The output is the
 
 #### options
 
-Type: `Object`
+Type: `object`
 
 ##### encoding
 
 Type: `string`<br>
-Default: `hex`<br>
-Values: `hex` `base64` `buffer` `latin1`
+Default: `'hex'`<br>
+Values: `'hex'` `'base64'` `'buffer'` `'latin1'`
 
 Encoding of the returned hash.
 
 ##### algorithm
 
 Type: `string`<br>
-Default: `sha512`<br>
-Values: `md5` `sha1` `sha256` `sha512` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
+Default: `'sha512'`<br>
+Values: `'md5'` `'sha1'` `'sha256'` `'sha512'` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
 
-### hasha.async(input, [options])
+### hasha.async(input, options?)
 
 In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
 
 Returns a hash asynchronously.
 
-### hasha.stream([options])
+### hasha.stream(options?)
 
 Returns a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
 
-### hasha.fromStream(stream, [options])
+### hasha.fromStream(stream, options?)
 
 Returns a `Promise` for the calculated hash.
 
-### hasha.fromFile(filepath, [options])
+### hasha.fromFile(filepath, options?)
 
 In Node.js 12 or later, the operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.
 
 Returns a `Promise` for the calculated file hash.
 
-### hasha.fromFileSync(filepath, [options])
+### hasha.fromFileSync(filepath, options?)
 
 Returns the calculated file hash.
 
@@ -131,8 +131,3 @@ Returns the calculated file hash.
 - [crypto-hash](https://github.com/sindresorhus/crypto-hash) - Tiny hashing module that uses the native crypto API in Node.js and the browser
 - [hash-obj](https://github.com/sindresorhus/hash-obj) - Get the hash of an object
 - [md5-hex](https://github.com/sindresorhus/md5-hex) - Create a MD5 hash with hex encoding
-
-
-## License
-
-MIT © [Sindre Sorhus](https://sindresorhus.com)

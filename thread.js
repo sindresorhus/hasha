@@ -7,6 +7,7 @@ const handlers = {
 	hashFile: (algorithm, filePath) => new Promise((resolve, reject) => {
 		const hasher = crypto.createHash(algorithm);
 		fs.createReadStream(filePath)
+			// TODO: Use `Stream.pipeline` when targeting Node.js 12.
 			.on('error', reject)
 			.pipe(hasher)
 			.on('error', reject)

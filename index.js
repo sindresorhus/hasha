@@ -32,9 +32,11 @@ const recreateWorkerError = sourceError => {
 
 const createWorker = () => {
 	worker = new Worker(path.join(__dirname, 'thread.js'));
+
 	worker.on('message', message => {
 		const task = tasks.get(message.id);
 		tasks.delete(message.id);
+
 		if (tasks.size === 0) {
 			worker.unref();
 		}
@@ -45,6 +47,7 @@ const createWorker = () => {
 			task.reject(recreateWorkerError(message.error));
 		}
 	});
+
 	worker.on('error', error => {
 		// Any error here is effectively an equivalent of segfault, and have no scope, so we just throw it on callback level
 		throw error;
