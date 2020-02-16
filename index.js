@@ -4,15 +4,13 @@ const path = require('path');
 const crypto = require('crypto');
 const isStream = require('is-stream');
 
-const requireOptional = (name, defaultValue) => {
+const {Worker} = (() => {
 	try {
-		return require(name);
+		return require('worker_threads');
 	} catch (_) {
-		return defaultValue;
+		return {};
 	}
-};
-
-const {Worker} = requireOptional('worker_threads', {});
+})();
 
 let worker; // Lazy
 let taskIdCounter = 0;
