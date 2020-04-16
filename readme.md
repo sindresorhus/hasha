@@ -12,17 +12,15 @@
 
 > Hashing made simple. Get the hash of a buffer/string/stream/file.
 
-[![Build Status](https://travis-ci.org/sindresorhus/hasha.svg?branch=master)](https://travis-ci.org/sindresorhus/hasha)
+[![Build Status](https://travis-ci.com/sindresorhus/hasha.svg?branch=master)](https://travis-ci.com/sindresorhus/hasha)
 
 Convenience wrapper around the core [`crypto` Hash class](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm) with simpler API and better defaults.
-
 
 ## Install
 
 ```
 $ npm install hasha
 ```
-
 
 ## Usage
 
@@ -61,12 +59,11 @@ const hasha = require('hasha');
 })();
 ```
 
-
 ## API
 
 See the Node.js [`crypto` docs](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options) for more about hashing.
 
-### hasha(input, [options])
+### hasha(input, options?)
 
 Returns a hash.
 
@@ -86,19 +83,19 @@ Type: `object`
 
 ##### encoding
 
-Type: `string`<br>
-Default: `'hex'`<br>
-Values: `'hex'` `'base64'` `'buffer'` `'latin1'`
+Type: `string`\
+Default: `'hex'`\
+Values: `'hex' | base64' | 'buffer' | 'latin1'`
 
 Encoding of the returned hash.
 
 ##### algorithm
 
-Type: `string`<br>
-Default: `'sha512'`<br>
-Values: `'md5'` `'sha1'` `'sha256'` `'sha512'` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
+Type: `string`\
+Default: `'sha512'`\
+Values: `'md5' | 'sha1' | 'sha256' | 'sha512'` *([Platform dependent](https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options))*
 
-*The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](http://googleonlinesecurity.blogspot.no/2014/09/gradually-sunsetting-sha-1.html)*
+*The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](https://security.googleblog.com/2014/09/gradually-sunsetting-sha-1.html)*
 
 ### hasha.async(input, options?)
 
@@ -123,7 +120,6 @@ Returns a `Promise` for the calculated file hash.
 ### hasha.fromFileSync(filepath, options?)
 
 Returns the calculated file hash.
-
 
 ## Related
 
