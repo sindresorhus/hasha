@@ -85,7 +85,7 @@ Type: `object`
 
 Type: `string`\
 Default: `'hex'`\
-Values: `'hex' | base64' | 'buffer' | 'latin1'`
+Values: `'hex' | 'base64' | 'buffer' | 'latin1'`
 
 Encoding of the returned hash.
 
