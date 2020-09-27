@@ -109,15 +109,15 @@ declare const hasha: {
 	@param stream - A stream you want to hash.
 	@returns The calculated hash.
 	*/
-	fromStream(stream: NodeJS.ReadableStream): Promise<string | null>;
+	fromStream(stream: NodeJS.ReadableStream): Promise<string>;
 	fromStream(
 		stream: NodeJS.ReadableStream,
 		options?: hasha.Options<hasha.ToStringEncoding>
-	): Promise<string | null>;
+	): Promise<string>;
 	fromStream(
 		stream: NodeJS.ReadableStream,
 		options?: hasha.Options<'buffer'>
-	): Promise<Buffer | null>;
+	): Promise<Buffer>;
 
 	/**
 	Calculate the hash for a file.
@@ -140,15 +140,15 @@ declare const hasha: {
 	})();
 	```
 	*/
-	fromFile(filePath: string): Promise<string | null>;
+	fromFile(filePath: string): Promise<string>;
 	fromFile(
 		filePath: string,
 		options: hasha.Options<hasha.ToStringEncoding>
-	): Promise<string | null>;
+	): Promise<string>;
 	fromFile(
 		filePath: string,
 		options: hasha.Options<'buffer'>
-	): Promise<Buffer | null>;
+	): Promise<Buffer>;
 
 	/**
 	Synchronously calculate the hash for a file.
