@@ -4,10 +4,11 @@
 	"description": "Hashing made simple. Get the hash of a buffer/string/stream/file.",
 	"license": "MIT",
 	"repository": "sindresorhus/hasha",
+	"funding": "https://github.com/sponsors/sindresorhus",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
+		"url": "https://sindresorhus.com"
 	},
 	"engines": {
 		"node": ">=8"
