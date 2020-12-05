@@ -5,16 +5,20 @@ const {parentPort} = require('worker_threads');
 
 const handlers = {
 	hashFile: (algorithm, filePath) => new Promise((resolve, reject) => {
-		const hasher = crypto.createHash(algorithm);
-		fs.createReadStream(filePath)
-			// TODO: Use `Stream.pipeline` when targeting Node.js 12.
-			.on('error', reject)
-			.pipe(hasher)
-			.on('error', reject)
-			.on('finish', () => {
-				const {buffer} = new Uint8Array(hasher.read());
-				resolve({value: buffer, transferList: [buffer]});
-			});
+		try {
+			const hasher = crypto.createHash(algorithm);
+			fs.createReadStream(filePath)
+				// TODO: Use `Stream.pipeline` when targeting Node.js 12.
+				.on('error', reject)
+				.pipe(hasher)
+				.on('error', reject)
+				.on('finish', () => {
+					const {buffer} = new Uint8Array(hasher.read());
+					resolve({value: buffer, transferList: [buffer]});
+				});
+		} catch (error) {
+			reject(error);
+		}
 	}),
 	hash: async (algorithm, input) => {
 		const hasher = crypto.createHash(algorithm);
