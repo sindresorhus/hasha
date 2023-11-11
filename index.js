@@ -1,13 +1,11 @@
-'use strict';
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const isStream = require('is-stream');
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {isStream} from 'is-stream';
 
-const {Worker} = (() => {
+const {Worker} = await (async () => {
 	try {
-		return require('worker_threads');
-	} catch (_) {
+		return await import('node:worker_threads');
+	} catch {
 		return {};
 	}
 })();
@@ -29,7 +27,7 @@ const recreateWorkerError = sourceError => {
 };
 
 const createWorker = () => {
-	worker = new Worker(path.join(__dirname, 'thread.js'));
+	worker = new Worker(new URL('thread.js', import.meta.url));
 
 	worker.on('message', message => {
 		const task = tasks.get(message.id);
@@ -52,7 +50,7 @@ const createWorker = () => {
 	});
 };
 
-const taskWorker = (method, args, transferList) => new Promise((resolve, reject) => {
+const taskWorker = (method, arguments_, transferList) => new Promise((resolve, reject) => {
 	const id = taskIdCounter++;
 	tasks.set(id, {resolve, reject});
 
@@ -61,90 +59,93 @@ const taskWorker = (method, args, transferList) => new Promise((resolve, reject)
 	}
 
 	worker.ref();
-	worker.postMessage({id, method, args}, transferList);
+	worker.postMessage({id, method, arguments_}, transferList);
 });
 
-const hasha = (input, options = {}) => {
-	let outputEncoding = options.encoding || 'hex';
-
-	if (outputEncoding === 'buffer') {
-		outputEncoding = undefined;
+export async function hash(input, options = {}) {
+	if (isStream(input)) {
+		return new Promise((resolve, reject) => {
+			// TODO: Use `stream.compose` and `.toArray()`.
+			input
+				.on('error', reject)
+				.pipe(hashingStream(options))
+				.on('error', reject)
+				.on('finish', function () {
+					resolve(this.read());
+				});
+		});
 	}
 
-	const hash = crypto.createHash(options.algorithm || 'sha512');
+	if (Worker === undefined) {
+		return hashSync(input, options);
+	}
+
+	let {
+		encoding = 'hex',
+		algorithm = 'sha512',
+	} = options;
+
+	if (encoding === 'buffer') {
+		encoding = undefined;
+	}
+
+	const hash = await taskWorker('hash', [algorithm, input]);
+
+	if (encoding === undefined) {
+		return Buffer.from(hash);
+	}
+
+	return Buffer.from(hash).toString(encoding);
+}
+
+export function hashSync(input, {encoding = 'hex', algorithm = 'sha512'} = {}) {
+	if (encoding === 'buffer') {
+		encoding = undefined;
+	}
+
+	const hash = crypto.createHash(algorithm);
 
 	const update = buffer => {
 		const inputEncoding = typeof buffer === 'string' ? 'utf8' : undefined;
 		hash.update(buffer, inputEncoding);
 	};
 
-	if (Array.isArray(input)) {
-		input.forEach(update);
-	} else {
-		update(input);
+	for (const element of [input].flat()) {
+		update(element);
 	}
 
-	return hash.digest(outputEncoding);
-};
-
-hasha.stream = (options = {}) => {
-	let outputEncoding = options.encoding || 'hex';
-
-	if (outputEncoding === 'buffer') {
-		outputEncoding = undefined;
-	}
-
-	const stream = crypto.createHash(options.algorithm || 'sha512');
-	stream.setEncoding(outputEncoding);
-	return stream;
-};
-
-hasha.fromStream = async (stream, options = {}) => {
-	if (!isStream(stream)) {
-		throw new TypeError('Expected a stream');
-	}
-
-	return new Promise((resolve, reject) => {
-		// TODO: Use `stream.pipeline` and `stream.finished` when targeting Node.js 10
-		stream
-			.on('error', reject)
-			.pipe(hasha.stream(options))
-			.on('error', reject)
-			.on('finish', function () {
-				resolve(this.read());
-			});
-	});
-};
-
-if (Worker === undefined) {
-	hasha.fromFile = async (filePath, options) => hasha.fromStream(fs.createReadStream(filePath), options);
-	hasha.async = async (input, options) => hasha(input, options);
-} else {
-	hasha.fromFile = async (filePath, {algorithm = 'sha512', encoding = 'hex'} = {}) => {
-		const hash = await taskWorker('hashFile', [algorithm, filePath]);
-
-		if (encoding === 'buffer') {
-			return Buffer.from(hash);
-		}
-
-		return Buffer.from(hash).toString(encoding);
-	};
-
-	hasha.async = async (input, {algorithm = 'sha512', encoding = 'hex'} = {}) => {
-		if (encoding === 'buffer') {
-			encoding = undefined;
-		}
-
-		const hash = await taskWorker('hash', [algorithm, input]);
-
-		if (encoding === undefined) {
-			return Buffer.from(hash);
-		}
-
-		return Buffer.from(hash).toString(encoding);
-	};
+	return hash.digest(encoding);
 }
 
-hasha.fromFileSync = (filePath, options) => hasha(fs.readFileSync(filePath), options);
+export async function hashFile(filePath, options = {}) {
+	if (Worker === undefined) {
+		return hash(fs.createReadStream(filePath), options);
+	}
 
-module.exports = hasha;
+	const {
+		encoding = 'hex',
+		algorithm = 'sha512',
+	} = options;
+
+	const hash = await taskWorker('hashFile', [algorithm, filePath]);
+
+	if (encoding === 'buffer') {
+		return Buffer.from(hash);
+	}
+
+	return Buffer.from(hash).toString(encoding);
+}
+
+export function hashFileSync(filePath, options) {
+	return hashSync(fs.readFileSync(filePath), options);
+}
+
+export function hashingStream({encoding = 'hex', algorithm = 'sha512'} = {}) {
+	if (encoding === 'buffer') {
+		encoding = undefined;
+	}
+
+	const stream = crypto.createHash(algorithm);
+	stream.setEncoding(encoding);
+	return stream;
+}

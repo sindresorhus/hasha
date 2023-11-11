@@ -1,13 +1,12 @@
-'use strict';
-const fs = require('fs');
-const crypto = require('crypto');
-const {parentPort} = require('worker_threads');
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {parentPort} from 'node:worker_threads';
 
 const handlers = {
 	hashFile: (algorithm, filePath) => new Promise((resolve, reject) => {
 		const hasher = crypto.createHash(algorithm);
 		fs.createReadStream(filePath)
-			// TODO: Use `Stream.pipeline` when targeting Node.js 12.
+			// TODO: Use `Stream.pipeline`.
 			.on('error', reject)
 			.pipe(hasher)
 			.on('error', reject)
@@ -16,32 +15,28 @@ const handlers = {
 				resolve({value: buffer, transferList: [buffer]});
 			});
 	}),
-	hash: async (algorithm, input) => {
+	async hash(algorithm, input) {
 		const hasher = crypto.createHash(algorithm);
 
-		if (Array.isArray(input)) {
-			for (const part of input) {
-				hasher.update(part);
-			}
-		} else {
-			hasher.update(input);
+		for (const part of [input].flat()) {
+			hasher.update(part);
 		}
 
 		const {buffer} = new Uint8Array(hasher.digest());
 		return {value: buffer, transferList: [buffer]};
-	}
+	},
 };
 
 parentPort.on('message', async message => {
 	try {
-		const {method, args} = message;
+		const {method, arguments_} = message;
 		const handler = handlers[method];
 
 		if (handler === undefined) {
 			throw new Error(`Unknown method '${method}'`);
 		}
 
-		const {value, transferList} = await handler(...args);
+		const {value, transferList} = await handler(...arguments_);
 		parentPort.postMessage({id: message.id, value}, transferList);
 	} catch (error) {
 		const newError = {message: error.message, stack: error.stack};

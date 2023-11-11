@@ -10,8 +10,14 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
+	"type": "module",
+	"exports": {
+		"types": "./index.d.ts",
+		"default": "./index.js"
+	},
+	"sideEffects": false,
 	"engines": {
-		"node": ">=8"
+		"node": ">=18"
 	},
 	"scripts": {
 		"test": "xo && ava && tsd"
@@ -44,19 +50,20 @@
 		"easy"
 	],
 	"dependencies": {
-		"is-stream": "^2.0.0",
-		"type-fest": "^0.8.0"
+		"is-stream": "^3.0.0",
+		"type-fest": "^4.7.1"
 	},
 	"devDependencies": {
-		"@types/node": "^12.7.5",
-		"ava": "^2.4.0",
-		"proxyquire": "^2.1.0",
-		"tsd": "^0.8.0",
-		"xo": "^0.24.0"
+		"@types/node": "^20.9.0",
+		"ava": "^5.3.1",
+		"esmock": "^2.6.0",
+		"tsd": "^0.29.0",
+		"xo": "^0.56.0"
 	},
 	"xo": {
 		"rules": {
-			"import/no-unresolved": "off"
+			"unicorn/no-await-expression-member": "off",
+			"n/prefer-global/buffer": "off"
 		}
 	}
 }
