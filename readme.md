@@ -110,6 +110,20 @@ import {hashingStream} from 'hasha';
 process.stdin.pipe(hashingStream()).pipe(process.stdout);
 ```
 
+## Tip
+
+For hashing multiple files, limit concurrency to `os.availableParallelism()`:
+
+```js
+import {availableParallelism} from 'node:os';
+import {hashFile} from 'hasha';
+import pLimit from 'p-limit';
+
+const limit = pLimit(availableParallelism());
+
+await Promise.all(files.map(file => limit(() => hashFile(file))));
+```
+
 ## Related
 
 - [hasha-cli](https://github.com/sindresorhus/hasha-cli) - CLI for this module
