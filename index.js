@@ -228,8 +228,29 @@ export async function hashFile(filePath, options = {}) {
 	return formatOutput(hash, encoding);
 }
 
-export function hashFileSync(filePath, options) {
-	return hashSync(fs.readFileSync(filePath), options);
+export function hashFileSync(filePath, {encoding = 'hex', algorithm = 'sha512'} = {}) {
+	// Stream file synchronously for better memory usage with large files
+	const hasher = crypto.createHash(algorithm);
+	const chunkSize = 64 * 1024; // 64KB chunks
+	const buffer = Buffer.alloc(chunkSize);
+	const fd = fs.openSync(filePath, 'r');
+
+	try {
+		let bytesRead;
+		let position = 0;
+
+		do {
+			bytesRead = fs.readSync(fd, buffer, 0, chunkSize, position);
+			if (bytesRead > 0) {
+				hasher.update(buffer.subarray(0, bytesRead));
+				position += bytesRead;
+			}
+		} while (bytesRead > 0);
+	} finally {
+		fs.closeSync(fd);
+	}
+
+	return formatOutput(hasher.digest(), encoding);
 }
 
 export function hashingStream({encoding = 'hex', algorithm = 'sha512'} = {}) {

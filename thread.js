@@ -13,7 +13,11 @@ const handlers = {
 		signal?.throwIfAborted();
 
 		const hasher = crypto.createHash(algorithm);
-		const readStream = fs.createReadStream(filePath, {signal});
+		// Use larger buffer for better performance with large files
+		const readStream = fs.createReadStream(filePath, {
+			signal,
+			highWaterMark: 256 * 1024, // 256KB chunks for better throughput
+		});
 
 		signal?.addEventListener('abort', () => {
 			readStream.destroy();

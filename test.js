@@ -336,3 +336,21 @@ test('worker survives malformed messages', async t => {
 	const result = await hash('test after potential worker issues');
 	t.is(result.length, 128);
 });
+
+test('hashFileSync handles large files efficiently', t => {
+	// Create a test file
+	const testFile = 'temp-test/large-test.bin';
+	const size = 1024 * 1024; // 1MB test file
+	fs.writeFileSync(testFile, Buffer.alloc(size, 'x'));
+
+	try {
+		const result = hashFileSync(testFile);
+		t.is(result.length, 128);
+
+		// Verify it produces same result as async version
+		const expected = hashSync(fs.readFileSync(testFile));
+		t.is(result, expected);
+	} finally {
+		fs.unlinkSync(testFile);
+	}
+});
