@@ -73,6 +73,12 @@ Values: `'md5' | 'sha1' | 'sha256' | 'sha512'` *([Platform dependent](https://no
 
 *The `md5` algorithm is good for [file revving](https://github.com/sindresorhus/rev-hash), but you should never use `md5` or `sha1` for anything sensitive. [They're insecure.](https://security.googleblog.com/2014/09/gradually-sunsetting-sha-1.html)*
 
+##### signal
+
+Type: `AbortSignal`
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to abort the hashing operation.
+
 ### hashFile(filePath, options?)
 
 The operation is executed using `worker_threads`. A thread is lazily spawned on the first operation and lives until the end of the program execution. It's unrefed, so it won't keep the process alive.

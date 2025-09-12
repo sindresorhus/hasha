@@ -14,11 +14,31 @@ let worker; // Lazy
 let taskIdCounter = 0;
 const tasks = new Map();
 
+const formatOutput = (buffer, encoding) => {
+	if (encoding === 'buffer' || encoding === undefined) {
+		return Buffer.from(buffer);
+	}
+
+	if (!['hex', 'base64', 'latin1'].includes(encoding)) {
+		throw new TypeError(`Invalid encoding: ${encoding}`);
+	}
+
+	return Buffer.from(buffer).toString(encoding);
+};
+
 const recreateWorkerError = sourceError => {
 	const error = new Error(sourceError.message);
 
+	if (sourceError.name) {
+		error.name = sourceError.name;
+	}
+
+	if (sourceError.stack) {
+		error.stack = sourceError.stack;
+	}
+
 	for (const [key, value] of Object.entries(sourceError)) {
-		if (key !== 'message') {
+		if (!(key in error) && key !== 'message') {
 			error[key] = value;
 		}
 	}
@@ -31,6 +51,12 @@ const createWorker = () => {
 
 	worker.on('message', message => {
 		const task = tasks.get(message.id);
+
+		if (!task) {
+			// Task may have been aborted and cleaned up already
+			return;
+		}
+
 		tasks.delete(message.id);
 
 		if (tasks.size === 0) {
@@ -44,31 +70,112 @@ const createWorker = () => {
 		}
 	});
 
-	worker.on('error', error => {
-		// Any error here is effectively an equivalent of segfault, and have no scope, so we just throw it on callback level
-		throw error;
+	const handleWorkerError = error => {
+		for (const task of tasks.values()) {
+			task.reject(error);
+		}
+
+		tasks.clear();
+		worker = undefined;
+	};
+
+	worker.on('error', handleWorkerError);
+	worker.on('exit', code => {
+		if (code !== 0) {
+			handleWorkerError(new Error(`Worker thread exited with code ${code}`));
+		}
 	});
 };
 
-const taskWorker = (method, arguments_, transferList) => new Promise((resolve, reject) => {
+const taskWorker = (method, arguments_, signal) => new Promise((resolve, reject) => {
 	const id = taskIdCounter++;
-	tasks.set(id, {resolve, reject});
+
+	const cleanup = () => {
+		tasks.delete(id);
+		if (tasks.size === 0) {
+			worker?.unref();
+		}
+	};
+
+	let abortCleanup;
+
+	const handleTaskEnd = (fn, value) => {
+		cleanup();
+		abortCleanup?.();
+		fn(value);
+	};
+
+	const task = {
+		resolve: value => handleTaskEnd(resolve, value),
+		reject: error => handleTaskEnd(reject, error),
+	};
+
+	tasks.set(id, task);
+
+	// Handle abort signal
+	if (signal) {
+		const onAbort = () => {
+			worker?.postMessage({id, abort: true});
+			task.reject(signal.reason);
+		};
+
+		if (signal.aborted) {
+			onAbort();
+			return;
+		}
+
+		signal.addEventListener('abort', onAbort, {once: true});
+		abortCleanup = () => signal.removeEventListener('abort', onAbort);
+	}
 
 	if (worker === undefined) {
 		createWorker();
 	}
 
 	worker.ref();
+
+	// Prepare transfer list for buffer inputs
+	let transferList;
+	if (method === 'hash' && arguments_[1]) {
+		const parts = [arguments_[1]].flat();
+		transferList = [];
+		arguments_[1] = parts.map(part => {
+			if (part instanceof Uint8Array) {
+				const ab = part.buffer.slice(part.byteOffset, part.byteOffset + part.byteLength);
+				transferList.push(ab);
+				return ab;
+			}
+
+			return part;
+		});
+
+		if (arguments_[1].length === 1) {
+			arguments_[1] = arguments_[1][0];
+		}
+	}
+
 	worker.postMessage({id, method, arguments_}, transferList);
 });
 
 export async function hash(input, options = {}) {
+	const {signal} = options;
+
+	signal?.throwIfAborted();
+
 	if (isStream(input)) {
 		return new Promise((resolve, reject) => {
+			const hashStream = hashingStream(options);
+
+			signal?.addEventListener('abort', () => {
+				input.destroy();
+				hashStream.destroy();
+				reject(signal.reason);
+			}, {once: true});
+
 			// TODO: Use `stream.compose` and `.toArray()`.
 			input
 				.on('error', reject)
-				.pipe(hashingStream(options))
+				.pipe(hashStream)
 				.on('error', reject)
 				.on('finish', function () {
 					resolve(this.read());
@@ -80,44 +187,34 @@ export async function hash(input, options = {}) {
 		return hashSync(input, options);
 	}
 
-	let {
+	const {
 		encoding = 'hex',
 		algorithm = 'sha512',
 	} = options;
 
-	if (encoding === 'buffer') {
-		encoding = undefined;
-	}
-
-	const hash = await taskWorker('hash', [algorithm, input]);
-
-	if (encoding === undefined) {
-		return Buffer.from(hash);
-	}
-
-	return Buffer.from(hash).toString(encoding);
+	const hash = await taskWorker('hash', [algorithm, input], signal);
+	return formatOutput(hash, encoding);
 }
 
 export function hashSync(input, {encoding = 'hex', algorithm = 'sha512'} = {}) {
-	if (encoding === 'buffer') {
-		encoding = undefined;
+	if (isStream(input)) {
+		throw new TypeError('hashSync does not accept streams');
 	}
 
 	const hash = crypto.createHash(algorithm);
 
-	const update = buffer => {
-		const inputEncoding = typeof buffer === 'string' ? 'utf8' : undefined;
-		hash.update(buffer, inputEncoding);
-	};
-
 	for (const element of [input].flat()) {
-		update(element);
+		hash.update(element, typeof element === 'string' ? 'utf8' : undefined);
 	}
 
-	return hash.digest(encoding);
+	return formatOutput(hash.digest(), encoding);
 }
 
 export async function hashFile(filePath, options = {}) {
+	const {signal} = options;
+
+	signal?.throwIfAborted();
+
 	if (Worker === undefined) {
 		return hash(fs.createReadStream(filePath), options);
 	}
@@ -127,13 +224,8 @@ export async function hashFile(filePath, options = {}) {
 		algorithm = 'sha512',
 	} = options;
 
-	const hash = await taskWorker('hashFile', [algorithm, filePath]);
-
-	if (encoding === 'buffer') {
-		return Buffer.from(hash);
-	}
-
-	return Buffer.from(hash).toString(encoding);
+	const hash = await taskWorker('hashFile', [algorithm, filePath], signal);
+	return formatOutput(hash, encoding);
 }
 
 export function hashFileSync(filePath, options) {
@@ -141,11 +233,14 @@ export function hashFileSync(filePath, options) {
 }
 
 export function hashingStream({encoding = 'hex', algorithm = 'sha512'} = {}) {
-	if (encoding === 'buffer') {
-		encoding = undefined;
+	if (encoding !== 'buffer' && !['hex', 'base64', 'latin1'].includes(encoding)) {
+		throw new TypeError(`Invalid encoding: ${encoding}`);
 	}
 
 	const stream = crypto.createHash(algorithm);
-	stream.setEncoding(encoding);
+	if (encoding !== 'buffer') {
+		stream.setEncoding(encoding);
+	}
+
 	return stream;
 }

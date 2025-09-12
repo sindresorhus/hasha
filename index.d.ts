@@ -27,6 +27,11 @@ export type Options<EncodingType extends HashEncoding = 'hex'> = {
 	@default 'sha512'
 	*/
 	readonly algorithm?: HashAlgorithm;
+
+	/**
+	An AbortSignal to abort the hashing operation.
+	*/
+	readonly signal?: AbortSignal;
 };
 
 /**
