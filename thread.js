@@ -94,9 +94,7 @@ parentPort.on('message', async message => {
 			message: error.message,
 			name: error.name,
 			stack: error.stack,
-			...Object.fromEntries(
-				Object.entries(error).filter(([key, value]) => !['message', 'name', 'stack'].includes(key) && typeof value !== 'object'),
-			),
+			...Object.fromEntries(Object.entries(error).filter(([key, value]) => !['message', 'name', 'stack'].includes(key) && typeof value !== 'object')),
 		};
 
 		parentPort.postMessage({id, error: newError});

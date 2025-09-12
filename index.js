@@ -204,7 +204,11 @@ export function hashSync(input, {encoding = 'hex', algorithm = 'sha512'} = {}) {
 	const hash = crypto.createHash(algorithm);
 
 	for (const element of [input].flat()) {
-		hash.update(element, typeof element === 'string' ? 'utf8' : undefined);
+		if (typeof element === 'string') {
+			hash.update(element, 'utf8');
+		} else {
+			hash.update(element);
+		}
 	}
 
 	return formatOutput(hash.digest(), encoding);

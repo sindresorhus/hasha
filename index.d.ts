@@ -8,7 +8,7 @@ export type HashEncoding = StringEncoding | 'buffer';
 
 export type HashAlgorithm = LiteralUnion<
 'md5' | 'sha1' | 'sha256' | 'sha512',
-string
+	string
 >;
 
 export type Options<EncodingType extends HashEncoding = 'hex'> = {
@@ -55,7 +55,7 @@ await hash('unicorn');
 ```
 */
 export function hash(input: HashInput, options?: Options<StringEncoding>): Promise<string>;
-export function hash(input: HashInput, options?: Options<'buffer'>): Promise<Buffer>;
+export function hash(input: HashInput, options?: Options<'buffer'>): Promise<Uint8Array>;
 
 /**
 Synchronously calculate the hash of a `string`, `Uint8Array`, or an array thereof.
@@ -76,7 +76,7 @@ hashSync('unicorn');
 ```
 */
 export function hashSync(input: HashSyncInput, options?: Options<StringEncoding>): string;
-export function hashSync(input: HashSyncInput, options?: Options<'buffer'>): Buffer;
+export function hashSync(input: HashSyncInput, options?: Options<'buffer'>): Uint8Array;
 
 /**
 Calculate the hash of a file.
@@ -96,7 +96,7 @@ await hashFile('unicorn.png', {algorithm: 'md5'});
 ```
 */
 export function hashFile(filePath: string, options?: Options<StringEncoding>): Promise<string>;
-export function hashFile(filePath: string, options?: Options<'buffer'>): Promise<Buffer>;
+export function hashFile(filePath: string, options?: Options<'buffer'>): Promise<Uint8Array>;
 
 /**
 Synchronously calculate the hash of a file.
@@ -114,7 +114,7 @@ hashFileSync('unicorn.png', {algorithm: 'md5'});
 ```
 */
 export function hashFileSync(filePath: string, options?: Options<StringEncoding>): string;
-export function hashFileSync(filePath: string, options?: Options<'buffer'>): Buffer;
+export function hashFileSync(filePath: string, options?: Options<'buffer'>): Uint8Array;
 
 /**
 Create a [hash transform stream](https://nodejs.org/api/crypto.html#crypto_class_hash).
