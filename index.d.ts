@@ -31,7 +31,7 @@ export type Options<EncodingType extends HashEncoding = 'hex'> = {
 	/**
 	An AbortSignal to abort the hashing operation.
 	*/
-	readonly signal?: AbortSignal;
+	readonly signal?: AbortSignal | undefined;
 };
 
 /**
